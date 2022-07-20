@@ -119,7 +119,7 @@ func (p pod) UpdatePod(podName, namespace, content string) error {
 	return nil
 }
 
-// 获取pod 容器列表 觉得直接序列化到列表展示页即可
+// 获取pod 容器列表忽略 直接序列化到列表展示页即可
 
 // 获取容器log
 func (p pod) GetPodLog(containerName, podName, namespace string) (string, error) {
@@ -189,4 +189,36 @@ func (p pod) GetPodLogSync(containerName, podName, namespace string) error {
 		}
 	}()
 	return nil
+}
+
+type PodsNp struct {
+	Namespace string `json:"namespace"`
+	PodNum    int `json:"pod_num"`
+}
+
+// 获取不同ns下的pod数量
+func (p pod) GetPodNumPerNp() ([]*PodsNp, error) {
+	namespaceList, err := K8s.ClientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		fmt.Println("namespace 获取报错", err)
+		return nil, err
+	}
+
+	var tmp []*PodsNp
+	for _, ns := range namespaceList.Items {
+		// 获取pod列表
+		podList, err := K8s.ClientSet.CoreV1().Pods(ns.Name).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			fmt.Println("获取list 报错", err)
+			return nil, err
+		}
+
+		// 组装数据
+		podsNp := &PodsNp{
+			Namespace: ns.Name,
+			PodNum:    len(podList.Items),
+		}
+		tmp = append(tmp, podsNp)
+	}
+	return tmp, nil
 }

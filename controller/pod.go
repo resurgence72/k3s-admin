@@ -202,3 +202,22 @@ func (p pod) PodLogSync(c *gin.Context) {
 		"data": nil,
 	})
 }
+
+// 获取每个ns的pod数量
+func (p pod) PodNumByNs(c *gin.Context) {
+	podsNs, err := service.Pod.GetPodNumPerNp()
+	if err != nil {
+		fmt.Println("pod by ns failed ", err)
+		c.JSON(http.StatusOK, gin.H{
+			"msg":  "pod by ns failed" + err.Error(),
+			"data": nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg":  "pod by ns success",
+		"data": podsNs,
+	})
+
+}

@@ -31,4 +31,6 @@ func (r *router) InitApiRouter(router *gin.Engine) {
 	router.GET("/api/v1/pod-log", Pod.PodLog)
 	// 获取pod实时日志
 	router.GET("/api/v1/pod-log-sync", Pod.PodLogSync)
+	// 获取每个ns的pod数量
+	router.GET("/api/v1/pods-by-ns", Pod.PodNumByNs)
 }
